@@ -933,19 +933,14 @@ const resultSKU = useMemo(() => {
 
       {resultSKU ? (
         <ResultsCard
-          sku={resultSKU}
-          onCTA={() => {
-            // TODO: wire to PDP or let the host page handle
-            // e.g. window.location.href = `/products/${resultSKU.toLowerCase()}`
-            // or postMessage to parent container:
-            postToParent({ type: "NOURISHED_QUIZ_EVENT", event: "cta_clicked", sku: resultSKU });
-          }}
-          onRestart={() => {
-            setAnswers({});
-            setStep(0);
-            setIdle(false);
-          }}
-        />
+  sku={resultSKU}
++ kiosk={kiosk}
+  onRestart={() => {
+    setAnswers({});
+    setStep(0);
+    setIdle(false);
+  }}
+/>
       ) : (
         <div style={{ opacity: 0.8 }}>Calculating your result…</div>
       )}
