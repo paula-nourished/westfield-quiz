@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import ResultsCard from "./ResultsCard";
+import { loadChoiceWeights, scoreAnswers, pickTopSKU } from "./scoring";
 
 /**
  * Nourished Formula Quiz — 90vw layout
