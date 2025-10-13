@@ -84,31 +84,29 @@ export default function ResultsCard({
   const theme = SKU_THEME[sku] || SKU_THEME._default;
 
   return (
-    <div
-  className="rounded-3xl p-6 md:p-8 mx-auto"
-  style={{
-    background: theme.bg,
-    border: "2px solid #d6d1c9",
-    boxShadow: "0 12px 32px rgba(21,50,71,.10)",
-    color: theme.text,
-    maxWidth: "620px",
-    width: "100%",
-  }}
->
-{/* Nourished logo at the top */}
-<div className="flex justify-center mb-4">
-          <Image
-            src="/nourished-formula-logo.svg"
-            alt="Nourished"
-            width={140}
-            height={32}
-            priority
-            style={{ opacity: 0.9, height: "auto" }}
-          />
-        </div>
-      {/* header */}
-      <div className={`grid gap-6 ${layout === "side" ? "md:grid-cols-2 items-center" : ""}`}>
-        {/* image */}
+  <div
+    className="rounded-3xl p-6 md:p-8 mx-auto"
+    style={{
+      background: theme.bg,
+      border: "2px solid #d6d1c9",
+      boxShadow: "0 12px 32px rgba(21,50,71,.10)",
+      color: theme.text,
+      maxWidth: "620px",
+      width: "100%",
+    }}
+  >
+    {/* Nourished logo at the top */}
+    <div className="flex justify-center mb-4">
+      <img
+        src="/nourished-formula-logo.svg"
+        alt="Nourished"
+        style={{ height: 28, width: "auto", opacity: 0.9 }}
+      />
+    </div>
+
+    {/* header */}
+    <div className={`grid gap-6 ${layout === "side" ? "md:grid-cols-2 items-center" : ""}`}>
+      {/* image */}
         <div className={`${layout === "side" ? "" : "order-1"} flex justify-center`}>
           {theme.img && (
             <img
