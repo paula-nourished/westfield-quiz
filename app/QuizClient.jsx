@@ -12,7 +12,7 @@ import { loadChoiceWeights, scoreAnswers, pickTopSKU } from "./scoring";
  * - Priorities: icon tiles (max 2)
  * - Exercise: multi-select tiles (max 2)
  * - Gender: icon tiles
- * - Processed-food question gets split title + helper text
+ * - Processed-food questfion gets split title + helper text
  */
 
 // ---- brand
