@@ -949,10 +949,6 @@ const resultSKU = useMemo(() => {
       ) : (
         <div style={{ opacity: 0.8 }}>Calculating your result…</div>
       )}
-
-      <p className="text-xs" style={{ opacity: 0.6, marginTop: 16 }}>
-        Context: <code>{context}</code>
-      </p>
     </div>
   </Stage>
 )}
