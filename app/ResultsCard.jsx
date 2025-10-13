@@ -90,7 +90,7 @@ export default function ResultsCard({
       border: "2px solid #d6d1c9",
       boxShadow: "0 12px 32px rgba(21,50,71,.10)",
       color: theme.text,
-      maxWidth: "620px",
+      maxWidth: "595px",
       width: "100%",
     }}
   >
