@@ -94,16 +94,18 @@ export default function ResultsCard({
     maxWidth: "620px",
     width: "100%",
   }}
-/>
+>
 {/* Nourished logo at the top */}
-<Image
-  src="/nourished-formula-logo.svg"
-  alt="Nourished"
-  width={120}
-  height={30}
-  priority
-  style={{ opacity: 0.9 }}
-/> 
+<div className="flex justify-center mb-4">
+          <Image
+            src="/nourished-formula-logo.svg"
+            alt="Nourished"
+            width={140}
+            height={32}
+            priority
+            style={{ opacity: 0.9, height: "auto" }}
+          />
+        </div>
       {/* header */}
       <div className={`grid gap-6 ${layout === "side" ? "md:grid-cols-2 items-center" : ""}`}>
         {/* image */}
