@@ -96,14 +96,14 @@ export default function ResultsCard({
   }}
 >
 {/* Nourished logo at the top */}
-  <div className="flex justify-center mb-4">
-    <img
-      src="/nourished-formula-logo.svg"
-      alt="Nourished"
-      style={{ height: 28, width: "auto", opacity: 0.9 }}
-      onError={(e) => (e.currentTarget.style.display = "none")}
-    />
-  </div> 
+<Image
+  src="/nourished-formula-logo.svg"
+  alt="Nourished"
+  width={120}
+  height={30}
+  priority
+  style={{ opacity: 0.9 }}
+/> 
       {/* header */}
       <div className={`grid gap-6 ${layout === "side" ? "md:grid-cols-2 items-center" : ""}`}>
         {/* image */}
