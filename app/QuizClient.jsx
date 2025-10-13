@@ -625,10 +625,6 @@ const resultSKU = useMemo(() => {
       className="min-h-screen"
       style={{
         color: BRAND.text,
-        backgroundImage: "url('/formula-code-bg.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
       }}
     >
       {/* GLOBAL SLIDER STYLES */}
