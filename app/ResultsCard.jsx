@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import Image from "next/image";
 
 // Theme & assets (update after you upload the mockups)
 const SKU_THEME = {
@@ -81,7 +80,7 @@ export default function ResultsCard({
   kiosk = false,
 }) {
   const data  = SKU_INFO[sku] || SKU_INFO.Energy;
-  const theme = SKU_THEME[sku] || SKU_THEME._default;
+  const theme = SKU_THEME[sku] || SKU_THEME.Energy;
 
   return (
   <div
