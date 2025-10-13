@@ -12,7 +12,7 @@ const SKU_THEME = {
 
 const SKU_INFO = {
   Energy: {
-    title: "Nourish3d Energy Stacks",
+    title: "Nourish3d Energy Stack",
     copy:
       "Feel switched on, not just switched to ‘survive’. Energy supports normal energy-yielding metabolism and helps reduce tiredness so you can get through busy days feeling more steady and focused.",
     benefits: [
@@ -24,7 +24,7 @@ const SKU_INFO = {
   },
 
   Balance: {
-    title: "Nourish3d Balance Stacks",
+    title: "Nourish3d Balance Stack",
     copy:
       "For the days you want to feel a little more ‘you’. Balance supports stress resilience and a steadier mood while helping your body handle everyday demands with antioxidant protection.",
     benefits: [
@@ -36,7 +36,7 @@ const SKU_INFO = {
   },
 
   Detox: {
-    title: "Nourish3d Detox Stacks",
+    title: "Nourish3d Detox Stack",
     copy:
       "Feel lighter and more comfortable. Detox is designed to support your liver’s natural cleansing processes and everyday digestion — ideal when bloating or rich meals have been in the mix.",
     benefits: [
@@ -48,7 +48,7 @@ const SKU_INFO = {
   },
 
   Immunity: {
-    title: "Nourish3d Immunity Stacks",
+    title: "Nourish3d Immunity Stack",
     copy:
       "Your everyday defence. Immunity supports the normal function of the immune system and cell protection — great for busy seasons, travel, or when you want an extra layer of support.",
     benefits: [
@@ -60,7 +60,7 @@ const SKU_INFO = {
   },
 
   Beauty: {
-    title: "Nourish3d Beauty Stacks",
+    title: "Nourish3d Beauty Stack",
     copy:
       "Glow from the inside out. Beauty supports healthy skin, hair and nails with antioxidant nutrients that help protect cells and back collagen formation for a brighter-looking you.",
     benefits: [
