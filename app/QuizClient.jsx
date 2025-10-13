@@ -297,14 +297,16 @@ function PeriodicOptions({ options, value, onChange, kiosk, getIconPath = getAns
               >
                 {iconPath && (
                   <img
-                    src={iconPath}
-                    alt=""
-                    draggable="false"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                    style={{ width: Math.round(iconSize * 0.7), height: Math.round(iconSize * 0.7), objectFit: "contain" }}
-                  />
+  src={iconPath}
+  alt=""
+  draggable="false"
+  style={{
+    width: Math.round(iconSize * 0.7),
+    height: Math.round(iconSize * 0.7),
+    objectFit: "contain",
+    filter: "brightness(0) invert(1)",
+  }}
+/>
                 )}
               </div>
               <div className={`${kiosk ? "text-2xl" : "text-xl"} font-semibold leading-snug`}>{opt.label}</div>
