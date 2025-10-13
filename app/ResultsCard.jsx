@@ -88,7 +88,7 @@ export default function ResultsCard({ sku = "Energy", layout = "stack", onRestar
     maxWidth: "620px",
     width: "100%",
   }}
->
+/>
 {/* Nourished logo at the top */}
 <Image
   src="/nourished-formula-logo.svg"
