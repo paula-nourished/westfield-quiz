@@ -695,7 +695,7 @@ const resultSKU = useMemo(() => {
       `}</style>
 
       {/* idle attract */}
-      {kiosk && idle && !isResults && (
+      {idle && !isResults && (
         <AttractScreen
           kiosk={kiosk}
           onStart={() => {
