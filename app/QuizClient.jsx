@@ -201,7 +201,7 @@ function getAnswerIconPath(label) {
   if (key === "yes") return "/icons/yes.svg";
   if (key.includes("sometimes") || key.includes("maybe")) return "/icons/maybe.svg";
 
-  return "/icons/sparkles.svg"; // fallback
+  return "/icons/shape.svg"; // fallback
 }
 
 // ---- helpers
