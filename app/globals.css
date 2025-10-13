@@ -20,7 +20,7 @@ html, body {
 }
 .card:hover { box-shadow: 0 10px 24px rgba(0,0,0,.06) }
 
-.btn  { @apply w-full rounded-2xl border bg-white py-3 text-base focus:outline-none
+.btn  { @apply w-full rounded-2xl border bg-white py-10 text-base focus:outline-none
                focus-visible:ring-4 focus-visible:ring-offset-2 disabled:opacity-50; }
 .btn-lg { @apply py-6 text-xl; }
 
