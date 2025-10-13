@@ -122,7 +122,7 @@ function AttractScreen({ onStart, kiosk }) {
           Find your perfect stack
         </h1>
         <p className={kiosk ? "text-xl" : "text-xl"} style={{ color: BRAND.text, opacity: 0.85, marginBottom: 24 }}>
-          Answer a few quick questions and we’ll match you to the right Nourished formula.
+          Answer a few quick questions and we’ll match you to the right Nourish3d stack.
         </p>
         <div className="mx-auto" style={{ maxWidth: 360 }}>
           <Button kiosk={kiosk} onClick={onStart} bg="#e2c181" textColor="#153247">
