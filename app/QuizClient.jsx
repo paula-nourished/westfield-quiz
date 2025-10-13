@@ -166,7 +166,7 @@ function getGenderIconPath(label) {
   if (key.includes("male") || key.includes("man") || key.includes("men")) return "/icons/male.svg";
   if (key.includes("non-binary") || key.includes("nonbinary") || key.includes("non binary")) return "/icons/non-binary.svg";
   if (key.includes("prefer not") || key.includes("rather not")) return "/icons/no.svg";
-  return "/icons/gender-unspecified.svg";
+  return "/icons/shape.svg";
 }
 
 function getAnswerIconPath(label) {
@@ -392,10 +392,13 @@ function PeriodicOptionsMulti({ options, values = [], onToggle, kiosk, maxSelect
                       height: Math.round(iconSize * 0.7),
                       objectFit: "contain",
                       display: "block",
+					filter: "brightness(0) invert(1)",
                     }}
                   />
                 )}
               </div>
+
+				
 
               <div className={`${kiosk ? "text-2xl" : "text-xl"} font-semibold leading-snug`}>{opt.label}</div>
             </div>
