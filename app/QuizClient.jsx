@@ -722,7 +722,7 @@ const resultSKU = useMemo(() => {
                   draggable="false"
                   style={{ width: "min(66%, 480px)", marginBottom: "8%" }}
                 />
-                <h1 className={kiosk ? "text-5xl" : "text-4xl"} style={{ fontWeight: 700, marginBottom: 12 }}>
+                <h1 className={kiosk ? "text-5xl" : "text-5xl"} style={{ fontWeight: 700, marginBottom: 12 }}>
                   Find your perfect stack
                 </h1>
                 <p className={kiosk ? "text-xl" : "text-lg"} style={{ opacity: 0.85, marginBottom: 24 }}>
