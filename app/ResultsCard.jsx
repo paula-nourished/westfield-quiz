@@ -55,9 +55,16 @@ export default function ResultsCard({
 
   return (
     <div
-      className="rounded-3xl p-6 md:p-8"
-      style={{ background: theme.bg, border: "2px solid #d6d1c9", boxShadow: "0 12px 32px rgba(21,50,71,.10)", color: theme.text }}
-    >
+  className="rounded-3xl p-6 md:p-8 mx-auto"
+  style={{
+    background: theme.bg,
+    border: "2px solid #d6d1c9",
+    boxShadow: "0 12px 32px rgba(21,50,71,.10)",
+    color: theme.text,
+    maxWidth: "620px",
+    width: "100%",
+  }}
+>
       {/* header */}
       <div className={`grid gap-6 ${layout === "side" ? "md:grid-cols-2 items-center" : ""}`}>
         {/* image */}
