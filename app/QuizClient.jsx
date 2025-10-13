@@ -922,9 +922,9 @@ const resultSKU = useMemo(() => {
       )}
 
       {/* results */}
-      {isResults && (
+{isResults && (
   <Stage kiosk={kiosk}>
-    <div style={{ width: "90vw", maxWidth: "90vw", marginInline: "auto", textAlign: "center" }}>
+    <div style={{ width: "100%", maxWidth: "620px", margin: "0 auto", textAlign: "center" }}>
       {weightsError && (
         <div className="mb-4 text-sm" style={{ color: "#b91c1c" }}>
           Scoring unavailable: {weightsError}
@@ -932,15 +932,15 @@ const resultSKU = useMemo(() => {
       )}
 
       {resultSKU ? (
-<ResultsCard
-  sku={resultSKU}
-  kiosk={kiosk}   // ← no plus sign!
-  onRestart={() => {
-    setAnswers({});
-    setStep(0);
-    setIdle(false);
-  }}
-/>
+        <ResultsCard
+          sku={resultSKU}
+          kiosk={kiosk}
+          onRestart={() => {
+            setAnswers({});
+            setStep(0);
+            setIdle(false);
+          }}
+        />
       ) : (
         <div style={{ opacity: 0.8 }}>Calculating your result…</div>
       )}
