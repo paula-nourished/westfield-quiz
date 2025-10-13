@@ -427,8 +427,10 @@ const PeriodicOptionsMultiWithIcons = PeriodicOptionsMulti;
 
 // ---- Main
 export default function QuizClient() {
-  const kiosk = true; // always use kiosk experience
-  const context = "kiosk";
+// REVERT to param-based flags
+const { get } = useQueryParams();
+const kiosk = get("kiosk", "0") === "1";
+const context = get("context", "default");
 
   useAutoResize();
 
@@ -932,14 +934,13 @@ const resultSKU = useMemo(() => {
 
       {resultSKU ? (
         <ResultsCard
-          sku={resultSKU}
-          kiosk={kiosk}
-          onRestart={() => {
-            setAnswers({});
-            setStep(0);
-            setIdle(false);
-          }}
-        />
+  sku={resultSKU}
+  onRestart={() => {
+    setAnswers({});
+    setStep(0);
+    setIdle(false);
+  }}
+/>
       ) : (
         <div style={{ opacity: 0.8 }}>Calculating your result…</div>
       )}
