@@ -90,13 +90,15 @@ function Button({ children, onClick, type = "button", disabled, kiosk, bg, textC
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`w-full ${kiosk ? "py-6 text-xl" : "py-6 text-base"} rounded-2xl border 
+      className={`w-full ${kiosk ? "py-8 text-2xl" : "py-5 text-lg"} rounded-3xl border
         focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 
         disabled:opacity-50`}
       style={{
         background: bg ?? "white",
         color: textColor ?? BRAND.text,
         borderColor: BRAND.border,
+		fontWeight: 600,
+        letterSpacing: kiosk ? "0.02em" : "0",
       }}
     >
       {children}
