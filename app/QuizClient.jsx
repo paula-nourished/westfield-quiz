@@ -427,8 +427,8 @@ const PeriodicOptionsMultiWithIcons = PeriodicOptionsMulti;
 
 // ---- Main
 export default function QuizClient() {
-  const { get } = useQueryParams();
-  const kiosk = get("kiosk", "0") === "1";
+  const kiosk = true; // always use kiosk experience
+  const context = "kiosk";
   const context = get("context", "default");
 
   useAutoResize();
