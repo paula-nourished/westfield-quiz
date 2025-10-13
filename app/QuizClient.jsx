@@ -427,10 +427,10 @@ const PeriodicOptionsMultiWithIcons = PeriodicOptionsMulti;
 
 // ---- Main
 export default function QuizClient() {
-// REVERT to param-based flags
-const { get } = useQueryParams();
-const kiosk = get("kiosk", "0") === "1";
-const context = get("context", "default");
+  // REVERT to param-based flags
+  const { get } = useQueryParams();
+  const kiosk = get("kiosk", "0") === "1";
+  const context = get("context", "default");
 
   useAutoResize();
 
