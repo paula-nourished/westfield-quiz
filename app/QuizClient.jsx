@@ -934,7 +934,7 @@ const resultSKU = useMemo(() => {
       {resultSKU ? (
         <ResultsCard
   sku={resultSKU}
-+ kiosk={kiosk}
+kiosk={kiosk}
   onRestart={() => {
     setAnswers({});
     setStep(0);
