@@ -429,7 +429,6 @@ const PeriodicOptionsMultiWithIcons = PeriodicOptionsMulti;
 export default function QuizClient() {
   const kiosk = true; // always use kiosk experience
   const context = "kiosk";
-  const context = get("context", "default");
 
   useAutoResize();
 
