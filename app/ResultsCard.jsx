@@ -72,14 +72,8 @@ const SKU_INFO = {
   },
 };
 
+export default function ResultsCard({ sku = "Energy", layout = "stack", onRestart, reasons = [], kiosk = false }) {
 
-export default function ResultsCard({
-  sku = "Energy",
-  layout = "stack", // "stack" | "side"
-  onRestart,
-  onCTA,
-  reasons = [], // optional bullet points like “You selected X” etc.
-}) {
   const theme = SKU_THEME[sku] || SKU_THEME.Energy;
   const data  = SKU_INFO[sku] || SKU_INFO.Energy;
 
