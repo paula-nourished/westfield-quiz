@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import ResultsCard from "./ResultsCard";
 import { loadChoiceWeights, scoreAnswers, pickTopSKU } from "./scoring";
 
@@ -445,6 +445,23 @@ export default function QuizClient() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
 
+	// --- scoring weights (key choice only)
+const [weightsIndex, setWeightsIndex] = useState(null);
+const [weightsError, setWeightsError] = useState(null);
+
+useEffect(() => {
+  let cancelled = false;
+  (async () => {
+    try {
+      // expects /public/key_choice_weights.csv with QUESTION_ID,OPTION,SCORE_SKU,WEIGHT,NOTES
+      const idx = await loadChoiceWeights("/key_choice_weights.csv");
+      if (!cancelled) setWeightsIndex(idx);
+    } catch (e) {
+      if (!cancelled) setWeightsError(String(e?.message || e));
+    }
+  })();
+  return () => { cancelled = true; };
+}, []);
   const resetAll = useCallback(() => {
     setAnswers({});
     setStep(0);
@@ -534,6 +551,13 @@ export default function QuizClient() {
   const current = step === 0 ? null : questions[step - 1];
   const isResults = step > total;
 
+	// --- compute result SKU (deterministic tie-break)
+const resultSKU = useMemo(() => {
+  if (!isResults || !weightsIndex) return null;
+  const scores = scoreAnswers({ questions, answers, weightsIndex });
+  return pickTopSKU(scores); // Energy > Balance > Detox > Immunity > Beauty
+}, [isResults, weightsIndex, answers, questions]);
+	
   function setAnswer(qid, value, mode = "single") {
     setAnswers((prev) => {
       const next = { ...prev };
@@ -899,41 +923,39 @@ export default function QuizClient() {
 
       {/* results */}
       {isResults && (
-        <Stage kiosk={kiosk}>
-          <div style={{ width: "90vw", maxWidth: "90vw", marginInline: "auto", textAlign: "center" }}>
-            <h2 className={kiosk ? "text-3xl" : "text-2xl"} style={{ fontWeight: 600, marginBottom: 16 }}>
-              Your recommendation
-            </h2>
-            <div style={{ marginBottom: 16, opacity: 0.85 }}>
-              Coming Soon — your personalised result will appear here once scoring is connected.
-            </div>
-            <div className="grid gap-3" style={{ width: "min(520px, 90vw)", marginInline: "auto" }}>
-              <Button
-                kiosk={kiosk}
-                onClick={() => {
-                  setAnswers({});
-                  setStep(0);
-                  setIdle(false);
-                }}
-              >
-                Restart
-              </Button>
-              <Button
-                kiosk={kiosk}
-                onClick={() => {
-                  postToParent({ type: "NOURISHED_QUIZ_EVENT", event: "cta_clicked" });
-                  alert("CTA clicked. In production, deep-link or let host handle.");
-                }}
-              >
-                Continue
-              </Button>
-            </div>
-            <p className="text-xs" style={{ opacity: 0.6, marginTop: 16 }}>
-              Context: <code>{context}</code>
-            </p>
-          </div>
-        </Stage>
+  <Stage kiosk={kiosk}>
+    <div style={{ width: "90vw", maxWidth: "90vw", marginInline: "auto", textAlign: "center" }}>
+      {weightsError && (
+        <div className="mb-4 text-sm" style={{ color: "#b91c1c" }}>
+          Scoring unavailable: {weightsError}
+        </div>
       )}
+
+      {resultSKU ? (
+        <ResultsCard
+          sku={resultSKU}
+          onCTA={() => {
+            // TODO: wire to PDP or let the host page handle
+            // e.g. window.location.href = `/products/${resultSKU.toLowerCase()}`
+            // or postMessage to parent container:
+            postToParent({ type: "NOURISHED_QUIZ_EVENT", event: "cta_clicked", sku: resultSKU });
+          }}
+          onRestart={() => {
+            setAnswers({});
+            setStep(0);
+            setIdle(false);
+          }}
+        />
+      ) : (
+        <div style={{ opacity: 0.8 }}>Calculating your result…</div>
+      )}
+
+      <p className="text-xs" style={{ opacity: 0.6, marginTop: 16 }}>
+        Context: <code>{context}</code>
+      </p>
+    </div>
+  </Stage>
+)}
 
       <div className="h-4" aria-hidden />
     </div>
