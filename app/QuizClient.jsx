@@ -114,12 +114,12 @@ function AttractScreen({ onStart, kiosk }) {
           alt="Nourished Formula"
           className="h-auto mx-auto mb-6"
           draggable="false"
-          style={{ width: "min(66%, 480px)", marginBottom: "8%" }}
+          style={{ width: "min(66%, 580px)", marginBottom: "8%" }}
         />
-        <h1 className={kiosk ? "text-5xl" : "text-4xl"} style={{ fontWeight: 700, marginBottom: 12, color: BRAND.text }}>
+        <h1 className={kiosk ? "text-5xl" : "text-5xl"} style={{ fontWeight: 700, marginBottom: 12, color: BRAND.text }}>
           Find your perfect stack
         </h1>
-        <p className={kiosk ? "text-xl" : "text-lg"} style={{ color: BRAND.text, opacity: 0.85, marginBottom: 24 }}>
+        <p className={kiosk ? "text-xl" : "text-xl"} style={{ color: BRAND.text, opacity: 0.85, marginBottom: 24 }}>
           Answer a few quick questions and we’ll match you to the right Nourished formula.
         </p>
         <div className="mx-auto" style={{ maxWidth: 360 }}>
@@ -127,7 +127,7 @@ function AttractScreen({ onStart, kiosk }) {
             Get Started
           </Button>
         </div>
-        <p style={{ fontWeight: 300, marginTop: 40, color: BRAND.text, fontSize: 12 }}>
+        <p style={{ fontWeight: 300, marginTop: 40, color: BRAND.text, fontSize: 14 }}>
           Please note: This quiz is designed to help you select a personalised vitamin stack based on your lifestyle and
           wellness goals. It is not intended to diagnose or treat any medical condition. If you are pregnant,
           breastfeeding, taking medication or under medical supervision, please consult a healthcare professional before
