@@ -90,7 +90,7 @@ function Button({ children, onClick, type = "button", disabled, kiosk, bg, textC
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`w-full ${kiosk ? "py-6 text-xl" : "py-3 text-base"} rounded-2xl border 
+      className={`w-full ${kiosk ? "py-6 text-xl" : "py-6 text-base"} rounded-2xl border 
         focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 
         disabled:opacity-50`}
       style={{
