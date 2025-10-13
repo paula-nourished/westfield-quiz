@@ -114,13 +114,6 @@ export default function ResultsCard({
           {/* CTAs */}
           <div className="grid gap-3" style={{ width: "min(520px, 90vw)" }}>
             <button
-              onClick={onCTA}
-              className="rounded-2xl py-3 px-5 font-semibold shadow border"
-              style={{ background: theme.accent, color: "#153247", borderColor: "#d6d1c9" }}
-            >
-              {data.cta}
-            </button>
-            <button
               onClick={onRestart}
               className="rounded-2xl py-3 px-5 font-semibold border bg-white"
               style={{ color: "#153247", borderColor: "#d6d1c9" }}
