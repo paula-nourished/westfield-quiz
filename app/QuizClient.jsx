@@ -82,16 +82,7 @@ function Stage({ kiosk, children }) {
     </div>
   );
 }
-// ---- optional email gate (shown before results)
-const [emailGateDone, setEmailGateDone] = useState(false);
-const [emailStatus, setEmailStatus] = useState("idle"); // idle | loading | success | error
-const [emailError, setEmailError] = useState("");
 
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwY9O9sT2suPahGxkxEu8zosuBl2EUnLvfe0mDbPT23d50yROL1E_cGzxRsKwfhnXDM/exec"; // <-- your Apps Script URL
-
-function isValidEmail(v) {
-  return /^\S+@\S+\.\S+$/.test(v);
-}
 
 // ---- buttons
 function Button({ children, onClick, type = "button", disabled, kiosk, bg, textColor }) {
@@ -462,7 +453,16 @@ export default function QuizClient() {
   const [error, setError] = useState(null);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
+// ---- optional email gate (shown before results)
+const [emailGateDone, setEmailGateDone] = useState(false);
+const [emailStatus, setEmailStatus] = useState("idle"); // idle | loading | success | error
+const [emailError, setEmailError] = useState("");
 
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwY9O9sT2suPahGxkxEu8zosuBl2EUnLvfe0mDbPT23d50yROL1E_cGzxRsKwfhnXDM/exec"; // <-- your Apps Script URL
+
+function isValidEmail(v) {
+  return /^\S+@\S+\.\S+$/.test(v);
+}
 	// --- scoring weights (key choice only)
 const [weightsIndex, setWeightsIndex] = useState(null);
 const [weightsError, setWeightsError] = useState(null);
