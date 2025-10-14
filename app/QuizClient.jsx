@@ -923,36 +923,33 @@ export default function QuizClient() {
       }
 
       // If email provided, save to Google Sheets
-      setEmailStatus("loading");
-      try {
-        const payload = {
-          email,
-          marketingConsent,
-          resultSKU,
-          answers, // store full answers for your 4-day window
-          kiosk,
-          context,
-        };
+setEmailStatus("loading");
+try {
+  const payload = new URLSearchParams();
+  payload.append("email", email);
+  payload.append("marketingConsent", marketingConsent ? "1" : "0");
+  payload.append("resultSKU", resultSKU || "");
+  payload.append("kiosk", kiosk ? "1" : "0");
+  payload.append("context", context || "");
+  payload.append("answers", JSON.stringify(answers || {}));
 
-        const res = await fetch(APPS_SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+  await fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",               // <- avoid CORS preflight/blocks
+    body: payload,                 // <- form-encoded matches e.parameter.*
+    // IMPORTANT: do NOT set Content-Type manually here
+  });
 
-        if (!res.ok) {
-          const msg = await res.text();
-          throw new Error(msg || "Network error");
-        }
+  // We can't read the response in no-cors (it's opaque), so treat as success.
+  setEmailStatus("success");
+  setEmailGateDone(true);
+  form.reset();
+} catch (err) {
+  console.error("Email gate error:", err);
+  setEmailStatus("error");
+  setEmailError("Sorry, we couldn’t save that. Please try again or continue without email.");
+}
 
-        setEmailStatus("success");
-        setEmailGateDone(true);
-        form.reset();
-      } catch (err) {
-        console.error("Email gate error:", err);
-        setEmailStatus("error");
-        setEmailError("Sorry, we couldn’t save that. Please try again or continue without email.");
-      }
     }}
                 className="p-6 md:p-8 rounded-3xl border mx-auto"
                 style={{ borderColor: "#d6d1c9", background: "white" }}
