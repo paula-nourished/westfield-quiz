@@ -474,13 +474,18 @@ export default function QuizClient() {
     setEmailError("");
   }, []);
 
-  const bumpIdle = useCallback(() => {
-    setIdle(false);
-    if (idleTimer.current) clearTimeout(idleTimer.current);
-    idleTimer.current = setTimeout(() => {
-      setIdle(true);
-      resetAll();
-    }, IDLE_MS);
+const bumpIdle = useCallback(() => {
+  setIdle(false);
+  if (idleTimer.current) clearTimeout(idleTimer.current);
+  idleTimer.current = setTimeout(() => {
+    // when going idle, reset everything we care about
+    setAnswers({});
+    setStep(0);
+    setEmailGateDone(false);
+    setEmailStatus("idle");
+    setEmailError("");
+    setIdle(true);
+  }, IDLE_MS);
   }, [IDLE_MS, resetAll]);
 
   useEffect(() => {
@@ -631,6 +636,25 @@ export default function QuizClient() {
 
   const goBack = () => setStep((s) => Math.max(0, s - 1));
 
+    // 🚦 EARLY RETURN: when idle, only show the attract screen
+  if (idle) {
+    return (
+      <Stage kiosk={kiosk}>
+        <AttractScreen
+          kiosk={kiosk}
+          onStart={() => {
+            setIdle(false);
+            setAnswers({});
+            setStep(1);
+            setEmailGateDone(false);
+            setEmailStatus("idle");
+            setEmailError("");
+          }}
+        />
+      </Stage>
+    );
+  }
+  
   return (
     <div className="min-h-screen" style={{ color: BRAND.text }}>
       {/* GLOBAL SLIDER STYLES */}
