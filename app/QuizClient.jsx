@@ -5,14 +5,8 @@ import ResultsCard from "./ResultsCard";
 import { loadChoiceWeights, scoreAnswers, pickTopSKU } from "./scoring";
 
 /**
- * Nourished Formula Quiz — 90vw layout
- * - All pages (landing, questions, results) render inside a 90vw container
- * - Kiosk idle screen "Get Started" jumps straight to Q1
- * - Robust slider detection (accepts: slider/range/scale/likert OR inferred from min/max labels)
- * - Priorities: icon tiles (max 2)
- * - Exercise: multi-select tiles (max 2)
- * - Gender: icon tiles
- * - Processed-food questfion gets split title + helper text
+ * Nourished Formula Quiz — 90vw layout + optional email gate (before results)
+ * - Email is optional; “Continue” shows results even if empty.
  */
 
 // ---- brand
@@ -21,12 +15,12 @@ const BRAND = {
   border: "#d6d1c9",
 };
 
-
 // ---- utilities
 function useQueryParams() {
   const [params, setParams] = useState(null);
   useEffect(() => {
-    if (typeof window !== "undefined") setParams(new URLSearchParams(window.location.search));
+    if (typeof window !== "undefined")
+      setParams(new URLSearchParams(window.location.search));
   }, []);
   const get = (k, fallback = null) => (params ? params.get(k) ?? fallback : fallback);
   return { get, raw: params };
@@ -41,7 +35,10 @@ function postToParent(message) {
 function useAutoResize() {
   useEffect(() => {
     const sendHeight = () => {
-      const h = document.documentElement.scrollHeight || document.body.scrollHeight || 0;
+      const h =
+        document.documentElement.scrollHeight ||
+        document.body.scrollHeight ||
+        0;
       postToParent({ type: "NOURISHED_QUIZ_HEIGHT", height: h });
     };
     sendHeight();
@@ -83,7 +80,6 @@ function Stage({ kiosk, children }) {
   );
 }
 
-
 // ---- buttons
 function Button({ children, onClick, type = "button", disabled, kiosk, bg, textColor }) {
   return (
@@ -91,14 +87,14 @@ function Button({ children, onClick, type = "button", disabled, kiosk, bg, textC
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`w-full ${kiosk ? "py-8 text-2xl" : "py-5 text-lg"} rounded-3xl border
+      className={`w-full ${kiosk ? "py-8 text-2xl" : "py-5 text-lg"} rounded-3xl border 
         focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 
         disabled:opacity-50`}
       style={{
         background: bg ?? "white",
         color: textColor ?? BRAND.text,
         borderColor: BRAND.border,
-		fontWeight: 600,
+        fontWeight: 600,
         letterSpacing: kiosk ? "0.02em" : "0",
       }}
     >
@@ -119,10 +115,16 @@ function AttractScreen({ onStart, kiosk }) {
           draggable="false"
           style={{ width: "min(66%, 580px)", marginBottom: "8%" }}
         />
-        <h1 className={kiosk ? "text-5xl" : "text-5xl"} style={{ fontWeight: 700, marginBottom: 12, color: BRAND.text }}>
+        <h1
+          className={kiosk ? "text-5xl" : "text-5xl"}
+          style={{ fontWeight: 700, marginBottom: 12, color: BRAND.text }}
+        >
           Find your perfect stack
         </h1>
-        <p className={kiosk ? "text-xl" : "text-xl"} style={{ color: BRAND.text, opacity: 0.85, marginBottom: 24 }}>
+        <p
+          className={kiosk ? "text-xl" : "text-xl"}
+          style={{ color: BRAND.text, opacity: 0.85, marginBottom: 24 }}
+        >
           Answer a few quick questions and we’ll match you to the right Nourish3d stack.
         </p>
         <div className="mx-auto" style={{ maxWidth: 360 }}>
@@ -196,7 +198,7 @@ function getAnswerIconPath(label) {
   if (key.includes("sports") || key.includes("sport")) return "/icons/sports.svg";
   if (key.includes("crossfit")) return "/icons/crossfit.svg";
   if (key.includes("boxing")) return "/icons/boxing.svg";
-  if (key.includes("walking") || key.includes("walk")) return "/icons/walking.svg";
+  if (key.includes("walking")) return "/icons/walking.svg";
   if (key.includes("other")) return "/icons/other.svg";
   if (key.includes("none") || key === "no") return "/icons/cross.svg";
   if (key === "yes") return "/icons/yes.svg";
@@ -250,24 +252,14 @@ function AnswerChip({ selected, children, onClick, kiosk }) {
   );
 }
 
-// ---- Single-select icon tiles (centered, 4 per row max)
+// ---- Single-select icon tiles
 function PeriodicOptions({ options, value, onChange, kiosk, getIconPath = getAnswerIconPath }) {
   const iconSize = kiosk ? 88 : 72;
   return (
-
-
     <div
       role="radiogroup"
-      className="grid gap-4 justify-center
-    [grid-template-columns:repeat(auto-fit,minmax(280px,280px))]
-    max-w-[calc(4*280px+3*1rem)]"
-      style={{
-        width: "90vw",
-        maxWidth: "90vw",
-        marginInline: "auto",
-        boxSizing: "border-box",
-	justifyContent: "center"
-      }}
+      className="grid gap-4 justify-center [grid-template-columns:repeat(auto-fit,minmax(280px,280px))] max-w-[calc(4*280px+3*1rem)]"
+      style={{ width: "90vw", maxWidth: "90vw", marginInline: "auto", boxSizing: "border-box", justifyContent: "center" }}
     >
       {(options || []).map((opt, i) => {
         const sel = value === opt.id;
@@ -298,16 +290,17 @@ function PeriodicOptions({ options, value, onChange, kiosk, getIconPath = getAns
               >
                 {iconPath && (
                   <img
-  src={iconPath}
-  alt=""
-  draggable="false"
-  style={{
-    width: Math.round(iconSize * 0.7),
-    height: Math.round(iconSize * 0.7),
-    objectFit: "contain",
-    filter: "brightness(0) invert(1)",
-  }}
-/>
+                    src={iconPath}
+                    alt=""
+                    draggable="false"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    style={{
+                      width: Math.round(iconSize * 0.7),
+                      height: Math.round(iconSize * 0.7),
+                      objectFit: "contain",
+                      filter: "brightness(0) invert(1)", // make SVGs white
+                    }}
+                  />
                 )}
               </div>
               <div className={`${kiosk ? "text-2xl" : "text-xl"} font-semibold leading-snug`}>{opt.label}</div>
@@ -385,22 +378,17 @@ function PeriodicOptionsMulti({ options, values = [], onToggle, kiosk, maxSelect
                     src={iconPath}
                     alt=""
                     draggable="false"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
                     style={{
                       width: Math.round(iconSize * 0.7),
                       height: Math.round(iconSize * 0.7),
                       objectFit: "contain",
                       display: "block",
-					filter: "brightness(0) invert(1)",
+                      filter: "brightness(0) invert(1)", // white icons
                     }}
                   />
                 )}
               </div>
-
-				
-
               <div className={`${kiosk ? "text-2xl" : "text-xl"} font-semibold leading-snug`}>{opt.label}</div>
             </div>
 
@@ -430,59 +418,60 @@ function PeriodicOptionsMulti({ options, values = [], onToggle, kiosk, maxSelect
   );
 }
 
-// ---- Priorities = Multi with icons (max 2) – just reuse above
+// ---- Priorities = Multi with icons (max 2)
 const PeriodicOptionsMultiWithIcons = PeriodicOptionsMulti;
 
-// ---- Main
+// ===================== Main Component =====================
 export default function QuizClient() {
-  // REVERT to param-based flags
+  // URL param flags
   const { get } = useQueryParams();
   const kiosk = get("kiosk", "0") === "1";
   const context = get("context", "default");
 
   useAutoResize();
 
-  // Idle
+  // ---- optional email gate (shown before results)
+  const [emailGateDone, setEmailGateDone] = useState(false);
+  const [emailStatus, setEmailStatus] = useState("idle"); // idle | loading | success | error
+  const [emailError, setEmailError] = useState("");
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/REPLACE_WITH_YOUR_DEPLOYMENT_ID/exec";
+  const isValidEmail = (v) => /^\S+@\S+\.\S+$/.test(v);
+
+  // ---- Idle
   const [idle, setIdle] = useState(true);
   const idleTimer = useRef(null);
   const IDLE_MS = kiosk ? 30000 : 120000;
 
-  // Steps / data
+  // ---- Steps / data
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState([]);
   const [error, setError] = useState(null);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
-// ---- optional email gate (shown before results)
-const [emailGateDone, setEmailGateDone] = useState(false);
-const [emailStatus, setEmailStatus] = useState("idle"); // idle | loading | success | error
-const [emailError, setEmailError] = useState("");
 
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwY9O9sT2suPahGxkxEu8zosuBl2EUnLvfe0mDbPT23d50yROL1E_cGzxRsKwfhnXDM/exec"; // <-- your Apps Script URL
+  // ---- scoring weights
+  const [weightsIndex, setWeightsIndex] = useState(null);
+  const [weightsError, setWeightsError] = useState(null);
 
-function isValidEmail(v) {
-  return /^\S+@\S+\.\S+$/.test(v);
-}
-	// --- scoring weights (key choice only)
-const [weightsIndex, setWeightsIndex] = useState(null);
-const [weightsError, setWeightsError] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const idx = await loadChoiceWeights("/key_choice_weights.csv");
+        if (!cancelled) setWeightsIndex(idx);
+      } catch (e) {
+        if (!cancelled) setWeightsError(String(e?.message || e));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
-useEffect(() => {
-  let cancelled = false;
-  (async () => {
-    try {
-      // expects /public/key_choice_weights.csv with QUESTION_ID,OPTION,SCORE_SKU,WEIGHT,NOTES
-      const idx = await loadChoiceWeights("/key_choice_weights.csv");
-      if (!cancelled) setWeightsIndex(idx);
-    } catch (e) {
-      if (!cancelled) setWeightsError(String(e?.message || e));
-    }
-  })();
-  return () => { cancelled = true; };
-}, []);
   const resetAll = useCallback(() => {
     setAnswers({});
     setStep(0);
+    setEmailGateDone(false);
+    setEmailStatus("idle");
+    setEmailError("");
   }, []);
 
   const bumpIdle = useCallback(() => {
@@ -496,9 +485,14 @@ useEffect(() => {
 
   useEffect(() => {
     const onAny = () => bumpIdle();
-    ["pointerdown", "keydown", "touchstart"].forEach((ev) => window.addEventListener(ev, onAny));
+    ["pointerdown", "keydown", "touchstart"].forEach((ev) =>
+      window.addEventListener(ev, onAny)
+    );
     bumpIdle();
-    return () => ["pointerdown", "keydown", "touchstart"].forEach((ev) => window.removeEventListener(ev, onAny));
+    return () =>
+      ["pointerdown", "keydown", "touchstart"].forEach((ev) =>
+        window.removeEventListener(ev, onAny)
+      );
   }, [bumpIdle]);
 
   const FALLBACK = [
@@ -522,32 +516,31 @@ useEffect(() => {
         const src = Array.isArray(data) ? data : [];
 
         const transformed = src.map((q, i) => {
-  const opts = normalizeOptionsFromAny(q, i);
+          const opts = normalizeOptionsFromAny(q, i);
+          const t = String(q.type || "").toLowerCase();
+          const typeMap = { slider: "slider", range: "slider", scale: "slider", likert: "slider" };
 
-  const t = String(q.type || "").toLowerCase();
-  const typeMap = { slider: "slider", range: "slider", scale: "slider", likert: "slider" };
+          // infer slider if no options and has min/max labels
+          const inferred = !t && (!opts.length && (q.minLabel || q.maxLabel))
+            ? "slider"
+            : (opts.length ? "single" : "single");
 
-  // infer slider if no options and has min/max labels
-  const inferred = !t && (!opts.length && (q.minLabel || q.maxLabel)) ? "slider" : (opts.length ? "single" : "single");
+          let qtype = typeMap[t] || inferred;
 
-  let qtype = typeMap[t] || inferred;
+          // lock specific id to slider if needed
+          const qid = String(q.id ?? `q_${i}`);
+          if (qid === "feeling_activity_levels") qtype = "slider";
 
-  // 🔒 hard guard: ensure the “How active…” question is always a slider
-  const qid = String(q.id ?? `q_${i}`);
-  if (qid === "feeling_activity_levels") {
-    qtype = "slider";
-  }
-
-  return {
-    id: qid,
-    title: q.title ?? `Question ${i + 1}`,
-    type: qtype,
-    answers: opts,
-    minLabel: q.minLabel,
-    maxLabel: q.maxLabel,
-    required: qtype === "slider" ? false : true,
-  };
-});
+          return {
+            id: qid,
+            title: q.title ?? `Question ${i + 1}`,
+            type: qtype,
+            answers: opts,
+            minLabel: q.minLabel,
+            maxLabel: q.maxLabel,
+            required: qtype === "slider" ? false : true,
+          };
+        });
 
         if (!cancelled) setQuestions(transformed.length ? transformed : FALLBACK);
       } catch (e) {
@@ -560,22 +553,20 @@ useEffect(() => {
       }
     }
     load();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   const total = questions.length;
   const current = step === 0 ? null : questions[step - 1];
   const isResults = step > total;
 
-	// --- compute result SKU (deterministic tie-break)
-const resultSKU = useMemo(() => {
-  if (!isResults || !weightsIndex) return null;
-  const scores = scoreAnswers({ questions, answers, weightsIndex });
-  return pickTopSKU(scores); // Energy > Balance > Detox > Immunity > Beauty
-}, [isResults, weightsIndex, answers, questions]);
-	
+  // compute result SKU
+  const resultSKU = useMemo(() => {
+    if (!isResults || !weightsIndex) return null;
+    const scores = scoreAnswers({ questions, answers, weightsIndex });
+    return pickTopSKU(scores); // Energy > Balance > Detox > Immunity > Beauty
+  }, [isResults, weightsIndex, answers, questions]);
+
   function setAnswer(qid, value, mode = "single") {
     setAnswers((prev) => {
       const next = { ...prev };
@@ -609,8 +600,11 @@ const resultSKU = useMemo(() => {
   // Identify special titles
   const isSpecificDiet = (q) => titleIncludes(q, "specific diet");
   const isWhichDiet = (q) => titleIncludes(q, "which diet");
-  const isProcessed = (q) => titleIncludes(q, "how often do you consume processed food") || titleIncludes(q, "how often do you eat processed");
-  const isExercise = (q) => titleIncludes(q, "when you exercise") || titleIncludes(q, "what kind of exercise");
+  const isProcessed = (q) =>
+    titleIncludes(q, "how often do you consume processed food") ||
+    titleIncludes(q, "how often do you eat processed");
+  const isExercise = (q) =>
+    titleIncludes(q, "when you exercise") || titleIncludes(q, "what kind of exercise");
   const isPriorities = (q) =>
     String(q?.title || "") === "Which of the below are your top two priorities in the upcoming months?";
   const isActiveWeek = (q) => titleIncludes(q, "how active are you in a typical week");
@@ -638,12 +632,7 @@ const resultSKU = useMemo(() => {
   const goBack = () => setStep((s) => Math.max(0, s - 1));
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        color: BRAND.text,
-      }}
-    >
+    <div className="min-h-screen" style={{ color: BRAND.text }}>
       {/* GLOBAL SLIDER STYLES */}
       <style jsx global>{`
         .nourished-range {
@@ -655,60 +644,33 @@ const resultSKU = useMemo(() => {
           background: #ffffff;
           outline: none;
         }
-        .nourished-range:focus {
-          outline: none;
-        }
+        .nourished-range:focus { outline: none; }
         .nourished-range::-webkit-slider-thumb {
           -webkit-appearance: none;
           appearance: none;
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
+          width: 32px; height: 32px; border-radius: 50%;
           background: ${BRAND.text};
           border: 2px solid #fff;
           box-shadow: 0 0 0 2px ${BRAND.text};
-          cursor: pointer;
-          margin-top: -9px;
+          cursor: pointer; margin-top: -9px;
         }
-        .nourished-range::-webkit-slider-runnable-track {
-          height: 14px;
-          border-radius: 7px;
-          background: transparent;
-        }
+        .nourished-range::-webkit-slider-runnable-track { height: 14px; border-radius: 7px; background: transparent; }
         .nourished-range::-moz-range-thumb {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: ${BRAND.text};
-          border: 2px solid #fff;
-          box-shadow: 0 0 0 2px ${BRAND.text};
-          cursor: pointer;
+          width: 32px; height: 32px; border-radius: 50%;
+          background: ${BRAND.text}; border: 2px solid #fff; box-shadow: 0 0 0 2px ${BRAND.text}; cursor: pointer;
         }
-        .nourished-range::-moz-range-track {
-          height: 14px;
-          border-radius: 7px;
-          background: transparent;
-        }
+        .nourished-range::-moz-range-track { height: 14px; border-radius: 7px; background: transparent; }
         .nourished-range::-ms-thumb {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: ${BRAND.text};
-          border: 2px solid #fff;
-          box-shadow: 0 0 0 2px ${BRAND.text};
-          cursor: pointer;
+          width: 32px; height: 32px; border-radius: 50%;
+          background: ${BRAND.text}; border: 2px solid #fff; box-shadow: 0 0 0 2px ${BRAND.text}; cursor: pointer;
         }
         .nourished-range::-ms-track {
-          height: 14px;
-          border-radius: 7px;
-          background: transparent;
-          border-color: transparent;
-          color: transparent;
+          height: 14px; border-radius: 7px; background: transparent; border-color: transparent; color: transparent;
         }
       `}</style>
 
       {/* idle attract */}
-      {idle && !isResults && (
+      {kiosk && idle && !isResults && (
         <AttractScreen
           kiosk={kiosk}
           onStart={() => {
@@ -719,7 +681,7 @@ const resultSKU = useMemo(() => {
         />
       )}
 
-      {/* main */}
+      {/* main Q&A */}
       {!isResults && !idle && (
         <>
           {step === 0 ? (
@@ -732,7 +694,7 @@ const resultSKU = useMemo(() => {
                   draggable="false"
                   style={{ width: "min(66%, 480px)", marginBottom: "8%" }}
                 />
-                <h1 className={kiosk ? "text-5xl" : "text-5xl"} style={{ fontWeight: 700, marginBottom: 12 }}>
+                <h1 className={kiosk ? "text-5xl" : "text-4xl"} style={{ fontWeight: 700, marginBottom: 12 }}>
                   Find your perfect stack
                 </h1>
                 <p className={kiosk ? "text-xl" : "text-lg"} style={{ opacity: 0.85, marginBottom: 24 }}>
@@ -871,16 +833,10 @@ const resultSKU = useMemo(() => {
                       );
                     }
 
-
-
                     // default multi (legacy chips)
                     if (current.type === "multi") {
                       return (
-                        <div
-                          role="group"
-                          aria-labelledby={`q-${current.id}`}
-                          style={{ width: "90vw", maxWidth: "90vw", marginInline: "auto" }}
-                        >
+                        <div role="group" aria-labelledby={`q-${current.id}`} style={{ width: "90vw", maxWidth: "90vw", marginInline: "auto" }}>
                           {(current.answers || []).map((a) => {
                             const selected = (answers[current.id] || []).includes(a.id);
                             return (
@@ -910,10 +866,7 @@ const resultSKU = useMemo(() => {
                   })()}
 
                   {/* nav */}
-                  <div
-                    className="mt-6 grid grid-cols-2 gap-3"
-                    style={{ width: "min(720px, 90vw)", marginInline: "auto" }}
-                  >
+                  <div className="mt-6 grid grid-cols-2 gap-3" style={{ width: "min(720px, 90vw)", marginInline: "auto" }}>
                     <Button kiosk={kiosk} onClick={goBack} disabled={step === 0}>
                       Back
                     </Button>
@@ -936,169 +889,161 @@ const resultSKU = useMemo(() => {
       )}
 
       {/* results */}
-{isResults && (
-  <Stage kiosk={kiosk}>
-    <div style={{ width: "100%", maxWidth: "620px", margin: "0 auto", textAlign: "center" }}>
-      {weightsError && (
-        <div className="mb-4 text-sm" style={{ color: "#b91c1c" }}>
-          Scoring unavailable: {weightsError}
-        </div>
-      )}
+      {isResults && (
+        <Stage kiosk={kiosk}>
+          <div style={{ width: "100%", maxWidth: "620px", margin: "0 auto", textAlign: "center" }}>
+            {weightsError && (
+              <div className="mb-4 text-sm" style={{ color: "#b91c1c" }}>
+                Scoring unavailable: {weightsError}
+              </div>
+            )}
 
- {/* STEP A — Email gate (optional) */}
-      {resultSKU && !emailGateDone && (
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            setEmailError("");
+            {/* STEP A — Email gate (optional, BEFORE results) */}
+            {resultSKU && !emailGateDone && (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setEmailError("");
 
-            const form = e.currentTarget;
-            const formData = new FormData(form);
-            const email = String(formData.get("email") || "").trim();
-            const marketingConsent = formData.get("marketingConsent") === "on";
+                  const form = e.currentTarget;
+                  const formData = new FormData(form);
+                  const email = String(formData.get("email") || "").trim();
+                  const marketingConsent = formData.get("marketingConsent") === "on";
 
-            // Email is OPTIONAL. Only validate if provided.
-            if (email && !isValidEmail(email)) {
-              setEmailError("Please enter a valid email address.");
-              return;
-            }
+                  // Email is OPTIONAL. Only validate if provided.
+                  if (email && !isValidEmail(email)) {
+                    setEmailError("Please enter a valid email address.");
+                    return;
+                  }
 
-            // If no email entered, just continue to results (don’t post to Sheets)
-            if (!email) {
-              setEmailGateDone(true);
-              return;
-            }
+                  // If no email entered, just continue to results (don’t post to Sheets)
+                  if (!email) {
+                    setEmailGateDone(true);
+                    return;
+                  }
 
-            // If email provided, save to Google Sheets
-            setEmailStatus("loading");
-            try {
-              const payload = {
-                email,
-                marketingConsent,
-                resultSKU,
-                answers,   // store full answers for your 4-day window
-                kiosk,
-                context,
-              };
+                  // If email provided, save to Google Sheets
+                  setEmailStatus("loading");
+                  try {
+                    const payload = {
+                      email,
+                      marketingConsent,
+                      resultSKU,
+                      answers, // store full answers for your 4-day window
+                      kiosk,
+                      context,
+                    };
 
-              const res = await fetch(APPS_SCRIPT_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              });
+                    const res = await fetch(APPS_SCRIPT_URL, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(payload),
+                    });
 
-              if (!res.ok) {
-                const msg = await res.text();
-                throw new Error(msg || "Network error");
-              }
+                    if (!res.ok) {
+                      const msg = await res.text();
+                      throw new Error(msg || "Network error");
+                    }
 
-              setEmailStatus("success");
-              setEmailGateDone(true); // proceed to results
-              form.reset();
-            } catch (err) {
-              setEmailStatus("error");
-              setEmailError("Sorry, we couldn’t save that. Please try again or continue without email.");
-              console.error("Email gate error:", err);
-            }
-          }}
-          className="p-6 md:p-8 rounded-3xl border mx-auto"
-          style={{ borderColor: "#d6d1c9", background: "white" }}
-        >
-          <h3 className="text-2xl md:text-3xl font-extrabold mb-2" style={{ color: "#153247", textAlign: "center" }}>
-            Before you see your match…
-          </h3>
-          <p className="opacity-80 mb-5 text-center" style={{ color: "#153247" }}>
-            Enter your email to save your quiz details. Or continue without adding an email.
-          </p>
+                    setEmailStatus("success");
+                    setEmailGateDone(true); // proceed to results
+                    form.reset();
+                  } catch (err) {
+                    setEmailStatus("error");
+                    setEmailError("Sorry, we couldn’t save that. Please try again or continue without email.");
+                    console.error("Email gate error:", err);
+                  }
+                }}
+                className="p-6 md:p-8 rounded-3xl border mx-auto"
+                style={{ borderColor: "#d6d1c9", background: "white" }}
+              >
+                <h3 className="text-2xl md:text-3xl font-extrabold mb-2" style={{ color: "#153247" }}>
+                  Before you see your match…
+                </h3>
+                <p className="opacity-80 mb-5" style={{ color: "#153247" }}>
+                  Enter your email to save your quiz details. Or continue without adding an email.
+                </p>
 
-          <label className="block mb-2 font-semibold" htmlFor="email" style={{ color: "#153247" }}>
-            Email address <span className="font-normal opacity-70">(optional)</span>
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="you@example.com"
-            className="w-full mb-2 rounded-xl border px-4 py-3"
-            style={{ borderColor: "#d6d1c9" }}
-            disabled={emailStatus === "loading"}
-          />
-          {emailError && (
-            <div className="text-sm mb-2" style={{ color: "#b91c1c" }}>
-              {emailError}
-            </div>
-          )}
+                <label className="block mb-2 font-semibold" htmlFor="email" style={{ color: "#153247" }}>
+                  Email address <span className="font-normal opacity-70">(optional)</span>
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  className="w-full mb-2 rounded-xl border px-4 py-3"
+                  style={{ borderColor: "#d6d1c9" }}
+                  disabled={emailStatus === "loading"}
+                />
+                {emailError && (
+                  <div className="text-sm mb-2" style={{ color: "#b91c1c" }}>
+                    {emailError}
+                  </div>
+                )}
 
-          <label className="flex items-start gap-2 mb-4 text-sm" style={{ color: "#153247" }}>
-            <input
-              type="checkbox"
-              name="marketingConsent"
-              className="mt-1"
-              disabled={emailStatus === "loading"}
-            />
-            <span>
-              I’m happy to receive tips and offers from Nourished. You can unsubscribe any time.
-            </span>
-          </label>
+                <label className="flex items-start gap-2 mb-4 text-sm" style={{ color: "#153247" }}>
+                  <input
+                    type="checkbox"
+                    name="marketingConsent"
+                    className="mt-1"
+                    disabled={emailStatus === "loading"}
+                  />
+                  <span>
+                    I’m happy to receive tips and offers from Nourished. You can unsubscribe any time.
+                  </span>
+                </label>
 
-          <div className="grid gap-3 grid-cols-2" style={{ width: "min(520px, 90vw)", marginInline: "auto" }}>
-            {/* Continue button works even with empty email */}
-            <button
-              type="button"
-              onClick={() => setEmailGateDone(true)}
-              className="rounded-2xl py-3 font-semibold border bg-white"
-              style={{ color: "#153247", borderColor: "#d6d1c9" }}
-              disabled={emailStatus === "loading"}
-            >
-              Continue to results
-            </button>
+                <div className="grid gap-3 grid-cols-2" style={{ width: "min(520px, 90vw)", marginInline: "auto" }}>
+                  {/* Continue button works even with empty email */}
+                  <button
+                    type="button"
+                    onClick={() => setEmailGateDone(true)}
+                    className="rounded-2xl py-3 font-semibold border bg-white"
+                    style={{ color: "#153247", borderColor: "#d6d1c9" }}
+                    disabled={emailStatus === "loading"}
+                  >
+                    Continue to results
+                  </button>
 
-            <button
-              type="submit"
-              className="rounded-2xl py-3 font-semibold border"
-              style={{ background: "#e2c181", color: "#153247", borderColor: "#d6d1c9" }}
-              disabled={emailStatus === "loading"}
-            >
-              {emailStatus === "loading" ? "Saving…" : "Save & continue"}
-            </button>
+                  <button
+                    type="submit"
+                    className="rounded-2xl py-3 font-semibold border"
+                    style={{ background: "#e2c181", color: "#153247", borderColor: "#d6d1c9" }}
+                    disabled={emailStatus === "loading"}
+                  >
+                    {emailStatus === "loading" ? "Saving…" : "Save & continue"}
+                  </button>
+                </div>
+
+                {emailStatus === "error" && (
+                  <div className="text-sm mt-3" style={{ color: "#b91c1c" }}>
+                    {emailError || "Something went wrong."}
+                  </div>
+                )}
+
+                <p className="text-xs mt-4 opacity-70" style={{ color: "#153247" }}>
+                  We won’t email your results. Email is just to save your quiz details during the event.
+                </p>
+              </form>
+            )}
+
+            {/* STEP B — Show results AFTER the gate */}
+            {resultSKU && emailGateDone && (
+              <ResultsCard
+                sku={resultSKU}
+                onRestart={() => {
+                  resetAll();
+                  setIdle(false);
+                }}
+              />
+            )}
+
+            {/* If scores still computing */}
+            {!resultSKU && <div style={{ opacity: 0.8, textAlign: "center" }}>Calculating your result…</div>}
           </div>
-
-          {emailStatus === "error" && (
-            <div className="text-sm mt-3" style={{ color: "#b91c1c", textAlign: "center" }}>
-              {emailError || "Something went wrong."}
-            </div>
-          )}
-
-          <p className="text-xs mt-4 opacity-70 text-center" style={{ color: "#153247" }}>
-            We won’t email your results. Email is just to save your quiz details during the event.
-          </p>
-        </form>
+        </Stage>
       )}
-
-      {/* STEP B — Show results AFTER the gate */}
-      {resultSKU && emailGateDone && (
-        <ResultsCard
-          sku={resultSKU}
-          onRestart={() => {
-            setAnswers({});
-            setStep(0);
-            setIdle(false);
-            setEmailGateDone(false);
-            setEmailStatus("idle");
-            setEmailError("");
-          }}
-        />
-      )}
-
-      {/* If scores still computing */}
-      {!resultSKU && (
-        <div style={{ opacity: 0.8, textAlign: "center" }}>Calculating your result…</div>
-      )}
-    </div>
-  </Stage>
-)}
-
-      <div className="h-4" aria-hidden />
     </div>
   );
 }
