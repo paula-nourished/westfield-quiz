@@ -82,6 +82,16 @@ function Stage({ kiosk, children }) {
     </div>
   );
 }
+// ---- optional email gate (shown before results)
+const [emailGateDone, setEmailGateDone] = useState(false);
+const [emailStatus, setEmailStatus] = useState("idle"); // idle | loading | success | error
+const [emailError, setEmailError] = useState("");
+
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwY9O9sT2suPahGxkxEu8zosuBl2EUnLvfe0mDbPT23d50yROL1E_cGzxRsKwfhnXDM/exec"; // <-- your Apps Script URL
+
+function isValidEmail(v) {
+  return /^\S+@\S+\.\S+$/.test(v);
+}
 
 // ---- buttons
 function Button({ children, onClick, type = "button", disabled, kiosk, bg, textColor }) {
@@ -935,17 +945,154 @@ const resultSKU = useMemo(() => {
         </div>
       )}
 
-      {resultSKU ? (
+ {/* STEP A — Email gate (optional) */}
+      {resultSKU && !emailGateDone && (
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setEmailError("");
+
+            const form = e.currentTarget;
+            const formData = new FormData(form);
+            const email = String(formData.get("email") || "").trim();
+            const marketingConsent = formData.get("marketingConsent") === "on";
+
+            // Email is OPTIONAL. Only validate if provided.
+            if (email && !isValidEmail(email)) {
+              setEmailError("Please enter a valid email address.");
+              return;
+            }
+
+            // If no email entered, just continue to results (don’t post to Sheets)
+            if (!email) {
+              setEmailGateDone(true);
+              return;
+            }
+
+            // If email provided, save to Google Sheets
+            setEmailStatus("loading");
+            try {
+              const payload = {
+                email,
+                marketingConsent,
+                resultSKU,
+                answers,   // store full answers for your 4-day window
+                kiosk,
+                context,
+              };
+
+              const res = await fetch(APPS_SCRIPT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+
+              if (!res.ok) {
+                const msg = await res.text();
+                throw new Error(msg || "Network error");
+              }
+
+              setEmailStatus("success");
+              setEmailGateDone(true); // proceed to results
+              form.reset();
+            } catch (err) {
+              setEmailStatus("error");
+              setEmailError("Sorry, we couldn’t save that. Please try again or continue without email.");
+              console.error("Email gate error:", err);
+            }
+          }}
+          className="p-6 md:p-8 rounded-3xl border mx-auto"
+          style={{ borderColor: "#d6d1c9", background: "white" }}
+        >
+          <h3 className="text-2xl md:text-3xl font-extrabold mb-2" style={{ color: "#153247", textAlign: "center" }}>
+            Before you see your match…
+          </h3>
+          <p className="opacity-80 mb-5 text-center" style={{ color: "#153247" }}>
+            Enter your email to save your quiz details. Or continue without adding an email.
+          </p>
+
+          <label className="block mb-2 font-semibold" htmlFor="email" style={{ color: "#153247" }}>
+            Email address <span className="font-normal opacity-70">(optional)</span>
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="you@example.com"
+            className="w-full mb-2 rounded-xl border px-4 py-3"
+            style={{ borderColor: "#d6d1c9" }}
+            disabled={emailStatus === "loading"}
+          />
+          {emailError && (
+            <div className="text-sm mb-2" style={{ color: "#b91c1c" }}>
+              {emailError}
+            </div>
+          )}
+
+          <label className="flex items-start gap-2 mb-4 text-sm" style={{ color: "#153247" }}>
+            <input
+              type="checkbox"
+              name="marketingConsent"
+              className="mt-1"
+              disabled={emailStatus === "loading"}
+            />
+            <span>
+              I’m happy to receive tips and offers from Nourished. You can unsubscribe any time.
+            </span>
+          </label>
+
+          <div className="grid gap-3 grid-cols-2" style={{ width: "min(520px, 90vw)", marginInline: "auto" }}>
+            {/* Continue button works even with empty email */}
+            <button
+              type="button"
+              onClick={() => setEmailGateDone(true)}
+              className="rounded-2xl py-3 font-semibold border bg-white"
+              style={{ color: "#153247", borderColor: "#d6d1c9" }}
+              disabled={emailStatus === "loading"}
+            >
+              Continue to results
+            </button>
+
+            <button
+              type="submit"
+              className="rounded-2xl py-3 font-semibold border"
+              style={{ background: "#e2c181", color: "#153247", borderColor: "#d6d1c9" }}
+              disabled={emailStatus === "loading"}
+            >
+              {emailStatus === "loading" ? "Saving…" : "Save & continue"}
+            </button>
+          </div>
+
+          {emailStatus === "error" && (
+            <div className="text-sm mt-3" style={{ color: "#b91c1c", textAlign: "center" }}>
+              {emailError || "Something went wrong."}
+            </div>
+          )}
+
+          <p className="text-xs mt-4 opacity-70 text-center" style={{ color: "#153247" }}>
+            We won’t email your results. Email is just to save your quiz details during the event.
+          </p>
+        </form>
+      )}
+
+      {/* STEP B — Show results AFTER the gate */}
+      {resultSKU && emailGateDone && (
         <ResultsCard
-  sku={resultSKU}
-  onRestart={() => {
-    setAnswers({});
-    setStep(0);
-    setIdle(false);
-  }}
-/>
-      ) : (
-        <div style={{ opacity: 0.8 }}>Calculating your result…</div>
+          sku={resultSKU}
+          onRestart={() => {
+            setAnswers({});
+            setStep(0);
+            setIdle(false);
+            setEmailGateDone(false);
+            setEmailStatus("idle");
+            setEmailError("");
+          }}
+        />
+      )}
+
+      {/* If scores still computing */}
+      {!resultSKU && (
+        <div style={{ opacity: 0.8, textAlign: "center" }}>Calculating your result…</div>
       )}
     </div>
   </Stage>
