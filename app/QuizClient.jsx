@@ -959,7 +959,7 @@ try {
                   Before you see your match…
                 </h3>
                 <p className="opacity-80 mb-5" style={{ color: "#153247" }}>
-                  Enter your email to save your quiz details. Or continue without adding an email.
+                  Enter your email to receive an exclusive event discount. Or continue without adding an email.
                 </p>
 
                 <label className="block mb-2 font-semibold" htmlFor="email" style={{ color: "#153247" }}>
