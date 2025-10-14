@@ -434,7 +434,7 @@ export default function QuizClient() {
   const [emailGateDone, setEmailGateDone] = useState(false);
   const [emailStatus, setEmailStatus] = useState("idle"); // idle | loading | success | error
   const [emailError, setEmailError] = useState("");
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxSpJreIEkTAKRNysljmC6aaDLkOUlwD0lZYOFii-z5MuZBbdHKhjD-yRbThughCB13/exec";
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuKrQELcyYked9IVYKOWRakHwDLpJQmGxv-XnATXjLs-sa-hGdNRod6-O56GwTIJ0/exec";
   const isValidEmail = (v) => /^\S+@\S+\.\S+$/.test(v);
 
   // ---- Idle
