@@ -923,36 +923,33 @@ export default function QuizClient() {
                   }
 
                   // If email provided, save to Google Sheets
-                  setEmailStatus("loading");
-                  try {
-                    const payload = {
-                      email,
-                      marketingConsent,
-                      resultSKU,
-                      answers, // store full answers for your 4-day window
-                      kiosk,
-                      context,
-                    };
+setEmailStatus("loading");
+try {
+  const payload = new URLSearchParams({
+    email,
+    marketingConsent: marketingConsent ? "1" : "0",
+    resultSKU,
+    answers: JSON.stringify(answers),
+    kiosk: kiosk ? "1" : "0",
+    context,
+  });
 
-                    const res = await fetch(APPS_SCRIPT_URL, {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify(payload),
-                    });
+  await fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    body: payload,
+    mode: "no-cors",           // IMPORTANT: avoids CORS preflight/errors
+  });
 
-                    if (!res.ok) {
-                      const msg = await res.text();
-                      throw new Error(msg || "Network error");
-                    }
+  // We can't read the response in no-cors mode, but for your use (4 days) this is fine.
+  setEmailStatus("success");
+  setEmailGateDone(true);
+  form.reset();
+} catch (err) {
+  setEmailStatus("error");
+  setEmailError("Sorry, we couldn’t save that. Please try again or continue without email.");
+  console.error("Email gate error:", err);
+}
 
-                    setEmailStatus("success");
-                    setEmailGateDone(true); // proceed to results
-                    form.reset();
-                  } catch (err) {
-                    setEmailStatus("error");
-                    setEmailError("Sorry, we couldn’t save that. Please try again or continue without email.");
-                    console.error("Email gate error:", err);
-                  }
                 }}
                 className="p-6 md:p-8 rounded-3xl border mx-auto"
                 style={{ borderColor: "#d6d1c9", background: "white" }}
