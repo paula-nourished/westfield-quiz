@@ -899,54 +899,61 @@ export default function QuizClient() {
             )}
 
             {/* STEP A — Email gate (optional, BEFORE results) */}
-            {resultSKU && !emailGateDone && (
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  setEmailError("");
+{resultSKU && !emailGateDone && (
+  <form
+    onSubmit={async (e) => {
+      e.preventDefault();
+      setEmailError("");
 
-                  const form = e.currentTarget;
-                  const formData = new FormData(form);
-                  const email = String(formData.get("email") || "").trim();
-                  const marketingConsent = formData.get("marketingConsent") === "on";
+      const form = e.currentTarget;
+      const formData = new FormData(form);
+      const email = String(formData.get("email") || "").trim();
+      const marketingConsent = formData.get("marketingConsent") === "on";
 
-                  // Email is OPTIONAL. Only validate if provided.
-                  if (email && !isValidEmail(email)) {
-                    setEmailError("Please enter a valid email address.");
-                    return;
-                  }
+      // Email is OPTIONAL. Only validate if provided.
+      if (email && !isValidEmail(email)) {
+        setEmailError("Please enter a valid email address.");
+        return;
+      }
 
-                  // If no email entered, just continue to results (don’t post to Sheets)
-                  if (!email) {
-                    setEmailGateDone(true);
-                    return;
-                  }
+      // If no email entered, just continue to results (don’t post to Sheets)
+      if (!email) {
+        setEmailGateDone(true);
+        return;
+      }
 
-                  // If email provided, save to Google Sheets
-// If email provided, save to Google Sheets
-                  setEmailStatus("loading");
-                  try {
-                    const payload = {
-                      email,
-                      marketingConsent,
-                      resultSKU,
-                      answers, // store full answers for your 4-day window
-                      kiosk,
-                      context,
-                    };
+      // If email provided, save to Google Sheets
+      setEmailStatus("loading");
+      try {
+        const payload = {
+          email,
+          marketingConsent,
+          resultSKU,
+          answers, // store full answers for your 4-day window
+          kiosk,
+          context,
+        };
 
-                    const res = await fetch(APPS_SCRIPT_URL, {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify(payload),
-                    });
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
-                    if (!res.ok) {
-                      const msg = await res.text();
-                      throw new Error(msg || "Network error");
-                    }
+        if (!res.ok) {
+          const msg = await res.text();
+          throw new Error(msg || "Network error");
+        }
 
-                }}
+        setEmailStatus("success");
+        setEmailGateDone(true);
+        form.reset();
+      } catch (err) {
+        console.error("Email gate error:", err);
+        setEmailStatus("error");
+        setEmailError("Sorry, we couldn’t save that. Please try again or continue without email.");
+      }
+    }}
                 className="p-6 md:p-8 rounded-3xl border mx-auto"
                 style={{ borderColor: "#d6d1c9", background: "white" }}
               >
