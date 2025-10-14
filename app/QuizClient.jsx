@@ -792,7 +792,7 @@ const bumpIdle = useCallback(() => {
                       const val = Number(answers[current.id] || 3);
                       const fillPct = Math.max(0, Math.min(100, ((val - 1) / 4) * 100)); // 1..5 → 0..100%
                       return (
-                        <div style={{ width: "90vw", maxWidth: "70vw", marginInline: "auto" }}>
+                        <div style={{ width: "90vw", maxWidth: "60vw", marginInline: "auto" }}>
                           <div
                             className="flex justify-between"
                             style={{ fontSize: kiosk ? "1.5rem" : "1.1rem", fontWeight: 700, marginBottom: 16 }}
