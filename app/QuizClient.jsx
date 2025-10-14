@@ -923,33 +923,34 @@ export default function QuizClient() {
       }
 
       // If email provided, save to Google Sheets
+// If email provided, save to Google Sheets (form-encoded, no preflight)
 setEmailStatus("loading");
 try {
-  const payload = new URLSearchParams();
-  payload.append("email", email);
-  payload.append("marketingConsent", marketingConsent ? "1" : "0");
-  payload.append("resultSKU", resultSKU || "");
-  payload.append("kiosk", kiosk ? "1" : "0");
-  payload.append("context", context || "");
-  payload.append("answers", JSON.stringify(answers || {}));
+  const formBody = new URLSearchParams({
+    email,
+    marketingConsent: marketingConsent ? "1" : "0",
+    resultSKU,
+    kiosk: kiosk ? "1" : "0",
+    context,
+    answers: JSON.stringify(answers),
+  });
 
   await fetch(APPS_SCRIPT_URL, {
     method: "POST",
-    mode: "no-cors",               // <- avoid CORS preflight/blocks
-    body: payload,                 // <- form-encoded matches e.parameter.*
-    // IMPORTANT: do NOT set Content-Type manually here
+    mode: "no-cors", // IMPORTANT: prevents CORS errors; you can't read the response, but write will succeed
+    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+    body: formBody.toString(),
   });
 
-  // We can't read the response in no-cors (it's opaque), so treat as success.
+  // With no-cors you can't inspect res.ok — just proceed
   setEmailStatus("success");
-  setEmailGateDone(true);
-  form.reset();
+  setEmailGateDone(true); // proceed to results
+  e.currentTarget.reset();
 } catch (err) {
-  console.error("Email gate error:", err);
   setEmailStatus("error");
   setEmailError("Sorry, we couldn’t save that. Please try again or continue without email.");
+  console.error("Email gate error:", err);
 }
-
     }}
                 className="p-6 md:p-8 rounded-3xl border mx-auto"
                 style={{ borderColor: "#d6d1c9", background: "white" }}
